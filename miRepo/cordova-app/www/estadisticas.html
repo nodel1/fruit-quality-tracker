@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Estadísticas del Lote</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <!-- Bootstrap y estilos -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/estadisticas.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/config.js"></script>
+
+    <style>
+        /* Para que las imágenes recortadas tengan tamaño fijo y queden bien alineadas */
+        .crop-img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            margin: 5px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        .image-section {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container py-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white text-center">
+            <h5 class="mb-0">Estadísticas del Lote</h5>
+        </div>
+        <div class="card-body">
+
+            <!-- Información del lote -->
+            <p id="loteInfo" class="text-center mb-4 font-weight-bold"></p>
+
+            <!-- Vista previa -->
+            <div class="image-section">
+                <h5>Vista previa de imágenes</h5>
+                <div id="previewContainer" class="row"></div>
+            </div>
+
+            <!-- Clasificación por madurez -->
+            <div class="image-section">
+                <h5 class="text-info">Recortes - Inmadura</h5>
+                <div id="inmadura" class="d-flex flex-wrap"></div>
+            </div>
+
+            <div class="image-section">
+                <h5 class="text-warning">Recortes - Poco madura</h5>
+                <div id="pocoMadura" class="d-flex flex-wrap"></div>
+            </div>
+
+            <div class="image-section">
+                <h5 class="text-success">Recortes - Madura</h5>
+                <div id="madura" class="d-flex flex-wrap"></div>
+            </div>
+
+            <div class="image-section">
+                <h5 class="text-success">Recortes - Buen estado</h5>
+                <div id="buenEstado" class="d-flex flex-wrap"></div>
+            </div>
+
+            <div class="image-section">
+                <h5 class="text-success">Recortes - Mal estado</h5>
+                <div id="malEstado" class="d-flex flex-wrap"></div>
+            </div>
+
+            <!-- Resultados numéricos -->
+            <div class="image-section">
+                <h5>Resultados</h5>
+                <div id="result" class="mb-3"></div>
+                <div id="metrics" class="mb-3"></div>
+                <!-- Gráficos -->
+                <canvas id="chartMetrics" class="mb-3"></canvas>
+                <canvas id="chartDistribucionMadurez" class="mb-3"></canvas>
+                <canvas id="chartDistribucionEstado" class="mb-3"></canvas>
+                <canvas id="chartEvolucion" class="mb-3"></canvas>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Script principal -->
+<script src="js/estadisticas.js"></script>
+<script src="js/menu-hamburguesa.js"></script>
+<script src="js/decorator.js"></script>
+<script>
+    const pageContent = () => {
+    };
+    const decoratedPage = decorateWithMenu(pageContent);
+    decoratedPage.render();
+</script>
+
+</body>
+</html>

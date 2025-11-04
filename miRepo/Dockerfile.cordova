@@ -1,0 +1,61 @@
+# Usa Node 18 o 20 según prefieras; aquí mantenemos Node 20
+FROM node:20-bullseye
+
+# Directorio de trabajo
+WORKDIR /app
+
+# Variables entorno Android SDK, Java y Gradle
+ENV ANDROID_SDK_ROOT=/opt/android-sdk \
+    ANDROID_HOME=/opt/android-sdk \
+    JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
+    PATH=$PATH:/opt/android-sdk/tools/bin:/opt/android-sdk/platform-tools:/opt/android-sdk/cmdline-tools/latest/bin:$JAVA_HOME/bin:/opt/gradle/bin
+
+# Instalar Java 17, curl, unzip, git (sin gradle aquí)
+RUN apt-get update && apt-get install -y \
+    openjdk-17-jdk \
+    curl \
+    unzip \
+    git \
+  && rm -rf /var/lib/apt/lists/*
+
+# Instalar Gradle 8.13 manualmente
+RUN curl -LO https://services.gradle.org/distributions/gradle-8.13-bin.zip && \
+    unzip gradle-8.13-bin.zip && \
+    mv gradle-8.13 /opt/gradle && \
+    rm gradle-8.13-bin.zip
+
+# Instalar Android SDK Command Line Tools
+RUN mkdir -p $ANDROID_SDK_ROOT/cmdline-tools && \
+    curl -o sdk-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip && \
+    unzip sdk-tools.zip -d $ANDROID_SDK_ROOT/cmdline-tools && \
+    mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest && \
+    rm sdk-tools.zip
+
+# Crear enlace a la ruta clásica tools/bin
+RUN ln -s $ANDROID_SDK_ROOT/cmdline-tools/latest $ANDROID_SDK_ROOT/tools
+
+# Aceptar licencias y preparar SDK
+RUN yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses
+
+# Instalar plataformas y build-tools necesarias (incluye 33 y 35)
+RUN sdkmanager --sdk_root=$ANDROID_SDK_ROOT \
+    "platform-tools" \
+    "platforms;android-33" \
+    "build-tools;33.0.0" \
+    "platforms;android-35" \
+    "build-tools;35.0.0"
+
+# Instalar Cordova CLI globalmente
+RUN npm install -g cordova@12.0.0
+
+# Copiar tu proyecto existente primero
+COPY . /app
+
+# Luego instalar plugins
+RUN cd /app && \
+    cordova plugin add cordova-plugin-android-permissions@1.1.0 && \
+    cordova plugin add cordova-plugin-camera@7.0.0 && \
+    cordova plugin add cordova.plugins.diagnostic@7.2.3
+
+
+CMD ["/bin/bash"]

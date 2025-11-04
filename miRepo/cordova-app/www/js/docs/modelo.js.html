@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: modelo.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: modelo.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** URL del backend de YOLO que procesa las imágenes */
+const YOLO_API_URL = "http://192.168.1.183:8001/predict/";
+
+/** Elemento input de tipo file para seleccionar o capturar imágenes */
+const fileInput = document.getElementById("fileInput");
+/** Contenedor para mostrar la vista previa de las imágenes seleccionadas */
+const previewContainer = document.getElementById("previewContainer");
+/** Contenedor donde se mostrarán los resultados de la predicción */
+const resultDiv = document.getElementById("result");
+/** Botón para tomar foto con la cámara del dispositivo */
+const takePhotoBtn = document.getElementById("takePhotoBtn");
+/** Botón para seleccionar imágenes desde la galería del dispositivo */
+const selectPhotoBtn = document.getElementById("selectPhotoBtn");
+/** Contenedor para imágenes clasificadas como buen estado */
+const goodStateDiv = document.getElementById("goodState");
+/** Contenedor para imágenes clasificadas como mal estado */
+const badStateDiv = document.getElementById("badState");
+
+/**
+ * Evento para tomar foto directamente con la cámara.
+ * Se activa el atributo capture del input y se abre la cámara.
+ */
+takePhotoBtn.addEventListener("click", () => {
+  fileInput.setAttribute("capture", "environment");
+  fileInput.click();
+});
+
+/**
+ * Evento para seleccionar imágenes desde la galería.
+ * Se elimina el atributo capture del input.
+ */
+selectPhotoBtn.addEventListener("click", () => {
+  fileInput.removeAttribute("capture");
+  fileInput.click();
+});
+
+/**
+ * Evento al cambiar el input de archivos.
+ * Previsualiza las imágenes seleccionadas, las envía al backend YOLO
+ * y muestra los resultados, incluyendo recortes por clase y gráficas.
+ */
+fileInput.addEventListener("change", async (event) => {
+  const files = event.target.files;
+  if (!files || files.length === 0) {
+    resultDiv.innerHTML = "Por favor, selecciona imágenes válidas.";
+    return;
+  }
+
+  // Limpiar vistas previas y resultados anteriores
+  previewContainer.innerHTML = "";
+  goodStateDiv.innerHTML = "";
+  badStateDiv.innerHTML = "";
+  resultDiv.innerHTML = "Procesando imágenes... ⏳";
+
+  // Previsualizar todas las imágenes seleccionadas
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = document.createElement("img");
+      img.src = e.target.result;
+      previewContainer.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Preparar FormData para enviar las imágenes al backend
+  const formData = new FormData();
+  Array.from(files).forEach(file => formData.append("files", file));
+
+  try {
+    const res = await fetch(YOLO_API_URL, {
+      method: "POST",
+      body: formData,
+    });
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`HTTP ${res.status}: ${errorText}`);
+    }
+
+    const data = await res.json();
+    console.log(data);
+
+    let resultsArray = Array.isArray(data.results) ? data.results : [data];
+
+    // Estadísticas totales de las clases
+    let totalStats = { buenEstado: 0, malEstado: 0 };
+
+    // Procesar resultados de cada imagen
+    resultsArray.forEach(result => {
+      const stats = result.stats || {};
+      for (const [cls, count] of Object.entries(stats)) {
+        totalStats[cls] = (totalStats[cls] || 0) + count;
+      }
+
+      // Mostrar recortes de cada predicción según la clase
+      (result.predictions || []).forEach(pred => {
+        const img = document.createElement("img");
+        img.src = `data:image/jpeg;base64,${pred.crop_base64}`;
+
+        if (pred.class_name === "buenEstado") {
+          goodStateDiv.appendChild(img);
+        } else {
+          badStateDiv.appendChild(img);
+        }
+      });
+    });
+
+    // Mostrar estadísticas totales en formato JSON
+    resultDiv.innerHTML = `&lt;pre>${JSON.stringify(totalStats, null, 2)}&lt;/pre>`;
+
+    // Graficar estadísticas totales usando Chart.js
+    const ctx = document.getElementById("chart").getContext("2d");
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: Object.keys(totalStats),
+        datasets: [{
+          label: "Cantidad total",
+          data: Object.values(totalStats),
+          backgroundColor: ["green", "red"]
+        }]
+      }
+    });
+
+  } catch (err) {
+    console.error(err);
+    resultDiv.innerHTML = "❌ Error al enviar las imágenes: " + err.message;
+  }
+});
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Events</h3><ul><li><a href="global.html#event:click">click</a></li></ul><h3>Global</h3><ul><li><a href="global.html#YOLO_API_URL">YOLO_API_URL</a></li><li><a href="global.html#abrir">abrir</a></li><li><a href="global.html#addNewImagesToGallery">addNewImagesToGallery</a></li><li><a href="global.html#badStateDiv">badStateDiv</a></li><li><a href="global.html#cerrar">cerrar</a></li><li><a href="global.html#createImageColumn">createImageColumn</a></li><li><a href="global.html#currentImageId">currentImageId</a></li><li><a href="global.html#decorateWithMenu">decorateWithMenu</a></li><li><a href="global.html#deleteBtn">deleteBtn</a></li><li><a href="global.html#errorMessage">errorMessage</a></li><li><a href="global.html#fileInput">fileInput</a></li><li><a href="global.html#fullscreenImg">fullscreenImg</a></li><li><a href="global.html#fullscreenOverlay">fullscreenOverlay</a></li><li><a href="global.html#gallery">gallery</a></li><li><a href="global.html#goodStateDiv">goodStateDiv</a></li><li><a href="global.html#imageFileInput">imageFileInput</a></li><li><a href="global.html#loadAndProcessImages">loadAndProcessImages</a></li><li><a href="global.html#loadImages">loadImages</a></li><li><a href="global.html#loadSavedImages">loadSavedImages</a></li><li><a href="global.html#myChart">myChart</a></li><li><a href="global.html#nav">nav</a></li><li><a href="global.html#previewContainer">previewContainer</a></li><li><a href="global.html#removeFileFromInput">removeFileFromInput</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#resultDiv">resultDiv</a></li><li><a href="global.html#savedContainer">savedContainer</a></li><li><a href="global.html#selectPhotoBtn">selectPhotoBtn</a></li><li><a href="global.html#selectedImage">selectedImage</a></li><li><a href="global.html#selectedImageContainer">selectedImageContainer</a></li><li><a href="global.html#separator">separator</a></li><li><a href="global.html#showFullscreenImage">showFullscreenImage</a></li><li><a href="global.html#showPreview">showPreview</a></li><li><a href="global.html#takePhotoBtn">takePhotoBtn</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Aug 28 2025 10:45:36 GMT+0200 (hora de verano de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

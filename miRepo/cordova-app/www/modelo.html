@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Clasificador de Fruta</title>
+    <link rel="stylesheet" href="./css/modelo.css">
+</head>
+<body>
+<h1>Clasificador de Fruta</h1>
+
+<div id="previewContainer" class="preview-grid"></div>
+
+<button id="takePhotoBtn">📸 Tomar Foto</button>
+<button id="selectPhotoBtn">🖼 Seleccionar Foto</button>
+<input type="file" id="fileInput" accept="image/*" capture hidden multiple>
+
+<h2>Resultados</h2>
+<div id="result">Sin procesar</div>
+
+<div class="state-container">
+    <div>
+        <h3>✅ Buen Estado</h3>
+        <div id="goodState" class="crop-grid good"></div>
+    </div>
+    <div>
+        <h3>❌ Mal Estado</h3>
+        <div id="badState" class="crop-grid bad"></div>
+    </div>
+</div>
+
+<canvas id="chart" width="400" height="200"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/modelo.js"></script>
+</body>
+</html>

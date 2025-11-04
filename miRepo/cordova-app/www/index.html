@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Imágenes</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/config.js"></script>
+    <script src="js/imagenes.js" defer></script>
+</head>
+<body>
+    <h1>Subir Imagen</h1>
+    
+    <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
+        
+        <div class="form-group">
+            <label for="imageFile">Seleccionar imagen:</label>
+            <input type="file" id="imageFile" name="imageFile[]" accept="image/*" multiple required>
+        </div>
+        
+        <button type="submit">Subir Imagen</button>
+        <div id="errorMessage" class="error"></div>
+    </form>
+
+    <script src="cordova.js"></script>
+    <script src="js/camera-handler.js"></script>
+
+    <button id ="camera">Camara</button>
+
+    <a href="add_img.html" class="btn btn-success mt-3">
+        <i class="fas fa-plus"></i> Añadir Imagen
+    </a>
+
+    <a id ="graficas" href="graficas.html">Graficas</a>
+
+
+    <h2>Galería de Imágenes</h2>
+    <div id="imageGallery" class="gallery">
+        <!-- Las imágenes se cargarán aquí -->
+    </div>
+
+</body>
+</html>

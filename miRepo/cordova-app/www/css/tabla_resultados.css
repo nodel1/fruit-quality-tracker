@@ -1,0 +1,52 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 1rem;
+  background-color: #f4faff;
+}
+
+.tabla-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #e3f0ff;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+th, td {
+  border: 1px solid #b2cbe2;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+th {
+  background-color: #5193d1;
+  color: white;
+}
+
+@media (max-width: 600px) {
+  th, td {
+    font-size: 0.9rem;
+    padding: 0.4rem;
+  }
+}
+
+.boton-volver {
+  display: block;
+  margin: 1rem auto;
+  padding: 0.6rem 1.2rem;
+  background-color: #1a73e8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.boton-volver:hover {
+  background-color: #0c59c6;
+}

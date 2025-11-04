@@ -1,0 +1,75 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.centered-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    min-height: calc(100vh - 112px);
+    z-index: 1;
+}
+
+
+.centered-container .card {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+
+.centered-container .lote-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+
+.centered-container .lote-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    text-align: center;
+}
+
+
+.centered-container .lote-item div {
+    display: none;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background-color: #f9f9f9;
+    justify-content: center;
+    gap: 10px;
+}
+
+
+.centered-container .no-lotes-message {
+    text-align: center;
+    color: #6c757d;
+    font-style: italic;
+    margin-top: 20px;
+}
+
+
+.centered-container .btn-custom {
+    background-color: #fff;
+    color: #000;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.centered-container .btn-custom:hover {
+    background-color: #4CAF50;
+    color: #000;
+}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: decorator.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: decorator.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Función decoradora que añade un menú a una página antes de renderizar su contenido principal.
+ * 
+ * @param {Function} pageElement - Función que renderiza el contenido principal de la página.
+ * @returns {Object} Objeto con metodo `render` para ejecutar la decoración y renderizado.
+ */
+function decorateWithMenu(pageElement) {
+    return {
+        /**
+         * Renderiza el menú en la página y luego ejecuta la función principal de la página.
+         * 
+         * @async
+         */
+        render: async () => {
+            // Crear contenedor para el menú
+            const menuContainer = document.createElement('div');
+            menuContainer.id = 'menu-container';
+
+            try {
+                // Cargar contenido del archivo menu.html
+                const response = await fetch('menu.html');
+                if (!response.ok) throw new Error('Error al cargar menu.html');
+                const menuContent = await response.text();
+                menuContainer.innerHTML = menuContent;
+
+                // Insertar el menú al inicio del body
+                document.body.insertBefore(menuContainer, document.body.firstChild);
+
+                // Inicializar los eventos de apertura y cierre del menú
+                const nav = document.querySelector("#nav");
+                const abrir = document.querySelector("#abrir");
+                const cerrar = document.querySelector("#cerrar");
+
+                if (nav &amp;&amp; abrir &amp;&amp; cerrar) {
+                    abrir.addEventListener("click", () => {
+                        nav.classList.add("visible");
+                    });
+                    cerrar.addEventListener("click", () => {
+                        nav.classList.remove("visible");
+                    });
+                } else {
+                    console.error('Elementos del menú no encontrados');
+                }
+
+                // Ajustar altura mínima del contenedor centrado según el header
+                const header = document.querySelector('header');
+                const centeredContainer = document.querySelector('.centered-container');
+                if (header &amp;&amp; centeredContainer) {
+                    const headerHeight = header.offsetHeight;
+                    centeredContainer.style.minHeight = `calc(100vh - ${headerHeight}px)`;
+                }
+            } catch (error) {
+                console.error('Error en el decorador:', error);
+                menuContainer.innerHTML = '&lt;p>Error al cargar el menú&lt;/p>';
+            }
+
+            // Ejecutar renderizado del contenido principal de la página
+            pageElement();
+        }
+    };
+}
+
+// Exponer la función globalmente
+window.decorateWithMenu = decorateWithMenu;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Events</h3><ul><li><a href="global.html#event:click">click</a></li></ul><h3>Global</h3><ul><li><a href="global.html#YOLO_API_URL">YOLO_API_URL</a></li><li><a href="global.html#abrir">abrir</a></li><li><a href="global.html#addNewImagesToGallery">addNewImagesToGallery</a></li><li><a href="global.html#badStateDiv">badStateDiv</a></li><li><a href="global.html#cerrar">cerrar</a></li><li><a href="global.html#createImageColumn">createImageColumn</a></li><li><a href="global.html#currentImageId">currentImageId</a></li><li><a href="global.html#decorateWithMenu">decorateWithMenu</a></li><li><a href="global.html#deleteBtn">deleteBtn</a></li><li><a href="global.html#errorMessage">errorMessage</a></li><li><a href="global.html#fileInput">fileInput</a></li><li><a href="global.html#fullscreenImg">fullscreenImg</a></li><li><a href="global.html#fullscreenOverlay">fullscreenOverlay</a></li><li><a href="global.html#gallery">gallery</a></li><li><a href="global.html#goodStateDiv">goodStateDiv</a></li><li><a href="global.html#imageFileInput">imageFileInput</a></li><li><a href="global.html#loadAndProcessImages">loadAndProcessImages</a></li><li><a href="global.html#loadImages">loadImages</a></li><li><a href="global.html#loadSavedImages">loadSavedImages</a></li><li><a href="global.html#myChart">myChart</a></li><li><a href="global.html#nav">nav</a></li><li><a href="global.html#previewContainer">previewContainer</a></li><li><a href="global.html#removeFileFromInput">removeFileFromInput</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#resultDiv">resultDiv</a></li><li><a href="global.html#savedContainer">savedContainer</a></li><li><a href="global.html#selectPhotoBtn">selectPhotoBtn</a></li><li><a href="global.html#selectedImage">selectedImage</a></li><li><a href="global.html#selectedImageContainer">selectedImageContainer</a></li><li><a href="global.html#separator">separator</a></li><li><a href="global.html#showFullscreenImage">showFullscreenImage</a></li><li><a href="global.html#showPreview">showPreview</a></li><li><a href="global.html#takePhotoBtn">takePhotoBtn</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Aug 28 2025 10:45:36 GMT+0200 (hora de verano de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

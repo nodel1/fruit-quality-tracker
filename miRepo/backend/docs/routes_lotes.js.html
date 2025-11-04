@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: routes/lotes.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: routes/lotes.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>const { pool } = require('../db');
+const headers = require('../utils/corsHeaders');
+
+/**
+ * Maneja las rutas relacionadas con la entidad "lote".
+ *
+ * Soporta las siguientes operaciones:
+ * - POST   /api/lote        → Crear un nuevo lote
+ * - GET    /api/lote        → Listar todos los lotes
+ * - GET    /api/lote/:id    → Obtener un lote por su ID
+ * - PUT    /api/lote/:id    → Modificar un lote existente
+ * - DELETE /api/lote/:id    → Eliminar un lote
+ *
+ * @param {*} req - Objeto de la petición HTTP
+ * @param {*} res - Objeto de la respuesta HTTP
+ * @returns {boolean} Indica si la ruta fue procesada (true) o no (false)
+ */
+function handleloteRoutes(req, res) {
+  // Crear un nuevo lote
+  if (req.method === 'POST' &amp;&amp; req.url === '/api/lote') {
+    let body = '';
+
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const { nombre, especie, variedad } = JSON.parse(body);
+
+        // Validación de campos obligatorios
+        if (!nombre || !especie || !variedad) {
+          res.writeHead(400, headers);
+          return res.end(JSON.stringify({
+            error: 'Nombre, especie y variedad son obligatorios',
+            campos_faltantes: {
+              nombre: !nombre,
+              especie: !especie,
+              variedad: !variedad
+            }
+          }));
+        }
+
+        // Generar un ID único basado en timestamp + aleatorio
+        const uniqueSuffix = `${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+        const id = `${nombre}-${uniqueSuffix}`;
+
+        // Verificar si el ID ya existe en la base de datos
+        const existe = await pool.query(
+          'SELECT 1 FROM lote WHERE id = $1',
+          [id]
+        );
+
+        if (existe.rows.length > 0) {
+          res.writeHead(409, headers);
+          return res.end(JSON.stringify({
+            error: 'Ya existe un lote con este ID',
+            id_conflicto: id
+          }));
+        }
+
+        // Insertar el nuevo lote en la base de datos
+        const result = await pool.query(
+          'INSERT INTO lote (id, nombre, especie, variedad) VALUES ($1, $2, $3, $4) RETURNING *',
+          [id, nombre, especie, variedad]
+        );
+
+        res.writeHead(201, headers);
+        res.end(JSON.stringify({
+          message: 'Lote creado correctamente',
+          id: id,
+          lote: result.rows[0]
+        }));
+      } catch (e) {
+        console.error('❌ Error en la creación del lote:', e);
+        res.writeHead(500, headers);
+        res.end(JSON.stringify({
+          error: 'Error interno al crear el lote',
+          details: process.env.NODE_ENV === 'development' ? e.message : undefined
+        }));
+      }
+    });
+    return true;
+  }
+
+  // Listar todos los lotes
+  if (req.method === 'GET' &amp;&amp; (req.url === '/api/lote' || req.url === '/api/lote/')) {
+    pool.query('SELECT id, nombre, especie, variedad FROM lote')
+      .then(result => {
+        res.writeHead(200, headers);
+        res.end(JSON.stringify(result.rows));
+      })
+      .catch(err => {
+        console.error('❌ Error listando lotes:', err);
+        res.writeHead(500, headers);
+        res.end(JSON.stringify({ error: 'Error en la base de datos' }));
+      });
+    return true;
+  }
+
+  // Obtener un lote por ID
+  if (req.method === 'GET' &amp;&amp; req.url.startsWith('/api/lote/')) {
+    const id = req.url.split('/')[3];
+    pool.query('SELECT id, nombre, especie, variedad FROM lote WHERE id = $1', [id])
+      .then(result => {
+        if (result.rows.length === 0) {
+          res.writeHead(404, headers);
+          res.end(JSON.stringify({ error: 'Lote no encontrado' }));
+        } else {
+          res.writeHead(200, headers);
+          res.end(JSON.stringify(result.rows[0]));
+        }
+      })
+      .catch(err => {
+        console.error('❌ Error obteniendo lote:', err);
+        res.writeHead(500, headers);
+        res.end(JSON.stringify({ error: 'Error en la base de datos' }));
+      });
+    return true;
+  }
+
+  // Eliminar un lote por ID
+  if (req.method === 'DELETE' &amp;&amp; req.url.startsWith('/api/lote/')) {
+    const id = req.url.split('/')[3];
+
+    pool.query('DELETE FROM lote WHERE id = $1 RETURNING *', [id])
+      .then(result => {
+        if (result.rowCount === 0) {
+          res.writeHead(404, headers);
+          res.end(JSON.stringify({ error: 'Lote no encontrado' }));
+        } else {
+          res.writeHead(200, headers);
+          res.end(JSON.stringify({ message: 'Lote eliminado correctamente' }));
+        }
+      })
+      .catch(err => {
+        res.writeHead(500, headers);
+        res.end(JSON.stringify({ error: 'Error al eliminar el lote' }));
+      });
+    return true;
+  }
+
+  // Modificar un lote existente
+  if (req.method === 'PUT' &amp;&amp; req.url.startsWith('/api/lote/')) {
+    const id = req.url.split('/')[3];
+    let body = '';
+
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const { nombre, especie, variedad } = JSON.parse(body);
+
+        // Validación de campos obligatorios
+        if (!nombre || !especie || !variedad) {
+          res.writeHead(400, headers);
+          return res.end(JSON.stringify({
+            error: 'Nombre, especie y variedad son obligatorios',
+            campos_faltantes: {
+              nombre: !nombre,
+              especie: !especie,
+              variedad: !variedad
+            }
+          }));
+        }
+
+        // Verificar si el lote existe antes de actualizar
+        const existe = await pool.query(
+          'SELECT 1 FROM lote WHERE id = $1',
+          [id]
+        );
+
+        if (existe.rows.length === 0) {
+          res.writeHead(404, headers);
+          return res.end(JSON.stringify({ error: 'Lote no encontrado' }));
+        }
+
+        // Actualizar los datos del lote
+        const result = await pool.query(
+          'UPDATE lote SET nombre = $1, especie = $2, variedad = $3 WHERE id = $4 RETURNING *',
+          [nombre, especie, variedad, id]
+        );
+
+        res.writeHead(200, headers);
+        res.end(JSON.stringify({
+          message: 'Lote modificado correctamente',
+          lote: result.rows[0]
+        }));
+      } catch (e) {
+        console.error('❌ Error en la modificación del lote:', e);
+        res.writeHead(500, headers);
+        res.end(JSON.stringify({
+          error: 'Error interno al modificar el lote',
+          details: process.env.NODE_ENV === 'development' ? e.message : undefined
+        }));
+      }
+    });
+    return true;
+  }
+
+  // Si ninguna ruta coincide, devolver false
+  return false;
+}
+
+module.exports = handleloteRoutes;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-corsHeaders.html">corsHeaders</a></li></ul><h3>Global</h3><ul><li><a href="global.html#handleImagenesRoutes">handleImagenesRoutes</a></li><li><a href="global.html#handleStaticRoutes">handleStaticRoutes</a></li><li><a href="global.html#handleloteRoutes">handleloteRoutes</a></li><li><a href="global.html#initializeDatabase">initializeDatabase</a></li><li><a href="global.html#pool">pool</a></li><li><a href="global.html#sendFile">sendFile</a></li><li><a href="global.html#server">server</a></li><li><a href="global.html#uploadDir">uploadDir</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Aug 28 2025 09:53:15 GMT+0200 (hora de verano de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

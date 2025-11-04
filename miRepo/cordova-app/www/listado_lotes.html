@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Listado de Lotes</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/menu.css" />
+    <link rel="stylesheet" href="css/styleLotes.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"/>
+</head>
+<body>
+<div class="centered-container">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white text-center">
+            <h5 class="mb-0">Listado de Lotes</h5>
+        </div>
+        <div class="card-body">
+            <ul id="lotesList" class="lote-list">
+                <!-- Los lotes se cargarán aquí -->
+            </ul>
+            <div id="noLotesMessage" class="no-lotes-message" style="display: none;">
+                ¡Aún no has creado ningún lote! Prueba a crear uno
+            </div>
+            <div class="d-flex flex-column mt-4">
+                <a href="lotes.html" class="btn btn-custom">Volver</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/decorator.js"></script>
+<script src="js/menu-hamburguesa.js"></script>
+<script src="js/config.js"></script>
+<script src="js/visualizacionLote.js" defer></script>
+<script>
+    const pageContent = () => {};
+    const decoratedPage = decorateWithMenu(pageContent);
+    decoratedPage.render();
+</script>
+</body>
+</html>

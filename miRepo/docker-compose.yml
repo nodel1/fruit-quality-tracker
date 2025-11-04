@@ -1,0 +1,88 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+      - /app/node_modules
+    environment:
+      DB_HOST: db
+      DB_USER: miusuario
+      DB_PASSWORD: mipassword
+      DB_NAME: micliente
+      DB_PORT: 5432
+      NODE_ENV: development
+      YOLO_API_URL: http://yolo:8000/predict/
+    depends_on:
+      db:
+        condition: service_healthy
+      yolo:
+        condition: service_started
+    networks:
+      - appnet
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: micliente
+      POSTGRES_USER: miusuario
+      POSTGRES_PASSWORD: mipassword
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U miusuario -d micliente"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - appnet
+
+  cordova:
+    build:
+      context: ./cordova-app
+      dockerfile: ../Dockerfile.cordova
+    volumes:
+      - ./cordova-app:/app
+    working_dir: /app
+    command: bash
+    tty: true
+    ports:
+      - "8000:8000"
+    networks:
+      - appnet
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx
+    ports:
+      - "443:443"
+    depends_on:
+      - backend
+    networks:
+      - appnet
+
+  yolo:
+    build:
+      context: .
+      dockerfile: Dockerfile.yolo
+    volumes:
+      - ./yolo-server:/app
+    ports:
+      - "8001:8000"
+    networks:
+      - appnet
+
+
+volumes:
+  pgdata:
+
+networks:
+  appnet:

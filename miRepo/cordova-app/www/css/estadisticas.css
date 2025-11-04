@@ -1,0 +1,58 @@
+html, body {
+          height: 100%;
+        }
+        .centered-container {
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 1rem;
+        }
+
+        .btn-custom {
+          background-color: #fff;
+          color: #000;
+          border: none;
+          padding: 10px 15px;
+          border-radius: 4px;
+        }
+
+        .btn-custom:hover {
+          background-color: #4CAF50;
+          color: #000;
+        }
+
+        img.preview-img {
+          max-width: 100%;
+          height: auto;
+          margin-bottom: 10px;
+          border-radius: 6px;
+        }
+
+        .crop-img {
+          width: 120px;
+          height: 120px;
+          object-fit: cover;
+          margin: 5px;
+          border-radius: 6px;
+        }
+
+        #goodState .crop-img {
+          border: 3px solid #28a745;
+        }
+
+        #badState .crop-img {
+          border: 3px solid #dc3545;
+        }
+
+        .image-section {
+          border: 1px solid #ddd;
+          border-radius: 8px;
+          padding: 15px;
+          margin-bottom: 20px;
+          background-color: #f9f9f9;
+        }
+
+        canvas {
+          max-width: 100%;
+        }

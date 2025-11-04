@@ -1,0 +1,11 @@
+FROM nginx:stable-alpine
+
+# Configuración nginx
+COPY ./nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
+
+# Certificados SSL
+COPY ./nginx/certs/fullchain.pem /etc/ssl/certs/fullchain.pem
+COPY ./nginx/ssl/privkey.pem /etc/ssl/private/privkey.pem
+
+# Archivos frontend (cordova)
+COPY ./cordova-app/www /usr/share/nginx/html

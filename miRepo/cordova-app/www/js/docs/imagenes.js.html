@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: imagenes.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: imagenes.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Carga todas las imágenes desde el backend y las muestra en la galería.
+ * También agrega botones para eliminar cada imagen.
+ * 
+ * @async
+ */
+async function loadImages() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/imagenes`);
+
+        if (!response.ok) {
+            throw new Error('Error al cargar imágenes');
+        }
+
+        /** @type {Array&lt;Object>} */
+        const images = await response.json();
+        const gallery = document.getElementById('imageGallery');
+        gallery.innerHTML = '';
+
+        if (images.length === 0) {
+            gallery.innerHTML = '&lt;p>No hay imágenes disponibles&lt;/p>';
+            return;
+        }
+
+        images.forEach(image => {
+            const imageCard = document.createElement('div');
+            imageCard.className = 'image-card';
+
+            // Enlace a la vista de detalle
+            const link = document.createElement('a');
+            link.href = `image-detail.html?id=${image.id}&amp;name=${encodeURIComponent(image.nombre)}`;
+
+            const imgElement = document.createElement('img');
+            imgElement.src = `${API_BASE_URL}/imagenes/${image.id}`;
+            imgElement.alt = image.nombre;
+            imgElement.loading = 'lazy';
+
+            link.appendChild(imgElement);
+            imageCard.appendChild(link);
+
+            // Nombre de la imagen
+            const nameElement = document.createElement('div');
+            nameElement.className = 'image-name';
+            nameElement.textContent = image.nombre;
+            imageCard.appendChild(nameElement);
+
+            // 🔴 Botón eliminar
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'btn btn-danger mt-2';
+            deleteButton.textContent = 'Eliminar';
+            deleteButton.onclick = async () => {
+                if (confirm(`¿Eliminar "${image.nombre}"?`)) {
+                    try {
+                        const res = await fetch(`${API_BASE_URL}/imagenes/${image.id}`, { method: 'DELETE' });
+                        if (res.ok) {
+                            alert('Imagen eliminada');
+                            await loadImages(); // recargar galería
+                        } else {
+                            alert('Error al eliminar la imagen');
+                        }
+                    } catch (err) {
+                        console.error('Error:', err);
+                        alert('Error de red al intentar eliminar');
+                    }
+                }
+            };
+
+            imageCard.appendChild(deleteButton);
+            gallery.appendChild(imageCard);
+        });
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('imageGallery').innerHTML =
+            '&lt;p class="error">Error al cargar las imágenes&lt;/p>';
+    }
+}
+
+/**
+ * Manejador del formulario de subida de imágenes.
+ * Envía los archivos seleccionados al backend usando FormData.
+ */
+document.getElementById('uploadForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const files = document.getElementById('imageFile').files;
+    const formData = new FormData();
+
+    // Añadir todos los archivos al FormData
+    for (let i = 0; i &lt; files.length; i++) {
+        formData.append('imagenes', files[i]);
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/upload-multiple`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || 'Error al subir las imágenes');
+        }
+
+        alert(result.message || 'Imágenes subidas correctamente');
+
+        // Limpiar formulario y actualizar galería
+        document.getElementById('uploadForm').reset();
+        await loadImages();
+        document.querySelector('.custom-file-label').textContent = 'Elegir archivo...';
+
+        // Limpiar previews de imagen seleccionada
+        document.getElementById('imageGallery2').innerHTML = '';
+        document.getElementById('selectedImage').style.display = 'none';
+
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('errorMessage2').textContent = error.message;
+    }
+});
+
+/** Cargar imágenes automáticamente al iniciar la página */
+document.addEventListener('DOMContentLoaded', loadImages);
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Events</h3><ul><li><a href="global.html#event:click">click</a></li></ul><h3>Global</h3><ul><li><a href="global.html#YOLO_API_URL">YOLO_API_URL</a></li><li><a href="global.html#abrir">abrir</a></li><li><a href="global.html#addNewImagesToGallery">addNewImagesToGallery</a></li><li><a href="global.html#badStateDiv">badStateDiv</a></li><li><a href="global.html#cerrar">cerrar</a></li><li><a href="global.html#createImageColumn">createImageColumn</a></li><li><a href="global.html#currentImageId">currentImageId</a></li><li><a href="global.html#decorateWithMenu">decorateWithMenu</a></li><li><a href="global.html#deleteBtn">deleteBtn</a></li><li><a href="global.html#errorMessage">errorMessage</a></li><li><a href="global.html#fileInput">fileInput</a></li><li><a href="global.html#fullscreenImg">fullscreenImg</a></li><li><a href="global.html#fullscreenOverlay">fullscreenOverlay</a></li><li><a href="global.html#gallery">gallery</a></li><li><a href="global.html#goodStateDiv">goodStateDiv</a></li><li><a href="global.html#imageFileInput">imageFileInput</a></li><li><a href="global.html#loadAndProcessImages">loadAndProcessImages</a></li><li><a href="global.html#loadImages">loadImages</a></li><li><a href="global.html#loadSavedImages">loadSavedImages</a></li><li><a href="global.html#myChart">myChart</a></li><li><a href="global.html#nav">nav</a></li><li><a href="global.html#previewContainer">previewContainer</a></li><li><a href="global.html#removeFileFromInput">removeFileFromInput</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#resultDiv">resultDiv</a></li><li><a href="global.html#savedContainer">savedContainer</a></li><li><a href="global.html#selectPhotoBtn">selectPhotoBtn</a></li><li><a href="global.html#selectedImage">selectedImage</a></li><li><a href="global.html#selectedImageContainer">selectedImageContainer</a></li><li><a href="global.html#separator">separator</a></li><li><a href="global.html#showFullscreenImage">showFullscreenImage</a></li><li><a href="global.html#showPreview">showPreview</a></li><li><a href="global.html#takePhotoBtn">takePhotoBtn</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Thu Aug 28 2025 10:45:36 GMT+0200 (hora de verano de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
